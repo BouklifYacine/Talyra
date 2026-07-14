@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // Core Better Auth tables (better-auth/adapters/prisma). Do not rename/reshape
