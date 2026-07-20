@@ -76,12 +76,13 @@ model Verification {
 
 // Tenant is the root of every business record.
 model Tenant {
-  id          String       @id @default(cuid())
-  name        String
-  email       String?
-  logoUrl     String?
-  legalName   String?
-  vatMode     VatMode      @default(EXEMPT)
+  id           String       @id @default(cuid())
+  name         String
+  businessType BusinessType @map("business_type")
+  email        String?
+  logoUrl      String?
+  legalName    String?
+  vatMode      VatMode      @default(EXEMPT)
   plan        TenantPlan   @default(TRIAL)
   status      TenantStatus @default(ACTIVE)
   currency    String       @default("EUR")
@@ -486,6 +487,14 @@ enum TenantStatus {
 enum VatMode {
   EXEMPT
   STANDARD
+}
+
+// The professional's trade. Drives templates and defaults down the line.
+enum BusinessType {
+  DECORATRICE
+  NEGAFA
+  WEDDING_PLANNER
+  PHOTO_VIDEO
 }
 
 enum MembershipRole {
