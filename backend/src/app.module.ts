@@ -4,11 +4,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { auth } from './auth';
-import { AuthController } from './auth/auth.controller';
 
 @Module({
   imports: [PrismaModule, AuthModule.forRoot({ auth })],
-  controllers: [AppController, AuthController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

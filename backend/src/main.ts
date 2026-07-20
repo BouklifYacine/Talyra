@@ -1,7 +1,3 @@
-// Must run before any other import: auth.ts reads process.env.DATABASE_URL
-// at module-load time, so .env has to be loaded first.
-import 'dotenv/config';
-
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
@@ -12,7 +8,7 @@ async function bootstrap() {
     bodyParser: false,
   });
   app.enableCors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL ?? 'http://localhost:3001',
     credentials: true,
   });
   await app.listen(process.env.PORT ?? 3001);

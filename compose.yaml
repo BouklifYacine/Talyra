@@ -10,7 +10,7 @@ services:
     ports:
       - "127.0.0.1:5433:5432"
     volumes:
-      - talyra-postgres-18-data:/var/lib/postgresql/data
+      - talyra-postgres-18-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U talyra -d talyra"]
       interval: 5s
