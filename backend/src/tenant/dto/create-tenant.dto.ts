@@ -7,6 +7,9 @@ export class CreateTenantDto {
   @MaxLength(120)
   businessName!: string;
 
-  @IsEnum(BusinessType)
+  @IsEnum(BusinessType, {
+    message:
+      "Le type d'activité doit être : DECORATRICE, NEGAFA, WEDDING PLANNER ou PHOTO-VIDEO.",
+  })
   businessType!: BusinessType;
 }
