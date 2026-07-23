@@ -10,17 +10,18 @@ datasource db {
 
 // Better Auth tables. Keep these compatible with Better Auth.
 model User {
-  id            String       @id
+  id            String        @id
   name          String
   email         String
-  emailVerified Boolean      @default(false)
+  emailVerified Boolean       @default(false)
   image         String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   sessions      Session[]
   accounts      Account[]
   memberships   Membership[]
-  payments      Payment[]    @relation("PaymentRecordedBy")
+  payments      Payment[]     @relation("PaymentRecordedBy")
+  activityLogs  ActivityLog[]
 
   @@unique([email])
   @@map("user")
@@ -43,19 +44,19 @@ model Session {
 }
 
 model Account {
-  id                    String   @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                   String    @id
+  accountId            String
+  providerId           String
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken          String?
+  refreshToken         String?
+  idToken              String?
+  accessTokenExpiresAt DateTime?
+  scope                String?
+  password             String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   @@index([userId])
   @@map("account")
@@ -75,37 +76,49 @@ model Verification {
 
 // Tenant is the root of every business record.
 model Tenant {
-  id           String       @id @default(cuid())
-  name         String
-  businessType BusinessType @map("business_type")
-  email        String?
-  logoUrl      String?
-  legalName    String?
-  vatMode      VatMode      @default(EXEMPT)
-  plan        TenantPlan   @default(TRIAL)
-  status      TenantStatus @default(ACTIVE)
-  currency    String       @default("EUR")
-  timeZone    String       @default("Europe/Paris")
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  memberships Membership[]
-  contacts    Contact[]
-  leads       Lead[]
-  resources   CalendarResource[]
-  prestations Prestation[]
-  slots       BookingSlot[]
-  optionHolds OptionHold[]
-  catalog     CatalogItem[]
-  quotes      Quote[]
-  quoteLines  QuoteLine[]
-  contracts   Contract[]
-  signatures  SignatureProof[]
-  schedules   PaymentSchedule[]
-  installments PaymentInstallment[]
-  payments    Payment[]
-  invoices    Invoice[]
-  portalTokens PortalToken[]
-  outboxEvents OutboxEvent[]
+  id                String               @id @default(cuid())
+  name              String
+  businessType      BusinessType         @map("business_type")
+  email             String?
+  phone             String?
+  logoUrl           String?
+  legalName         String?
+  siren             String?              @unique @db.VarChar(9)
+  legalForm         LegalForm?           @map("legal_form")
+  legalFormOther    String?              @map("legal_form_other")
+  shareCapitalCents Int?                 @map("share_capital_cents")
+  legalAddressLine1 String?              @map("legal_address_line_1")
+  legalAddressLine2 String?              @map("legal_address_line_2")
+  legalPostalCode   String?              @map("legal_postal_code")
+  legalCity         String?              @map("legal_city")
+  legalCountryCode  String               @default("FR") @map("legal_country_code")
+  vatMode           VatMode?
+  vatNumber         String?              @map("vat_number")
+  plan              TenantPlan           @default(TRIAL)
+  status            TenantStatus         @default(ACTIVE)
+  currency          String               @default("EUR")
+  timeZone          String               @default("Europe/Paris")
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  memberships       Membership[]
+  contacts          Contact[]
+  leads             Lead[]
+  resources         CalendarResource[]
+  prestations       Prestation[]
+  slots             BookingSlot[]
+  optionHolds       OptionHold[]
+  catalog           CatalogItem[]
+  quotes            Quote[]
+  quoteLines        QuoteLine[]
+  contracts         Contract[]
+  signatures        SignatureProof[]
+  schedules         PaymentSchedule[]
+  installments      PaymentInstallment[]
+  payments          Payment[]
+  invoices          Invoice[]
+  portalTokens      PortalToken[]
+  activityLogs      ActivityLog[]
+  outboxEvents      OutboxEvent[]
 
   @@map("tenant")
 }
@@ -177,25 +190,25 @@ model CalendarResource {
 }
 
 model Prestation {
-  id          String            @id @default(cuid())
-  tenantId    String            @map("tenant_id")
-  contactId   String            @map("contact_id")
-  title       String
-  eventType   String?           @map("event_type")
-  status      PrestationStatus  @default(DRAFT)
-  amountCents Int               @default(0) @map("amount_cents")
-  currency    String            @default("EUR")
-  notes       String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  tenant      Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  contact     Contact           @relation(fields: [contactId], references: [id], onDelete: Restrict)
-  slots       BookingSlot[]
-  quotes      Quote[]
-  contracts   Contract[]
-  schedules   PaymentSchedule[]
-  payments    Payment[]
-  invoices    Invoice[]
+  id           String            @id @default(cuid())
+  tenantId     String            @map("tenant_id")
+  contactId    String            @map("contact_id")
+  title        String
+  eventType    String?           @map("event_type")
+  status       PrestationStatus  @default(DRAFT)
+  amountCents  Int               @default(0) @map("amount_cents")
+  currency     String            @default("EUR")
+  notes        String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  tenant       Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  contact      Contact           @relation(fields: [contactId], references: [id], onDelete: Restrict)
+  slots        BookingSlot[]
+  quotes       Quote[]
+  contracts    Contract[]
+  schedules    PaymentSchedule[]
+  payments     Payment[]
+  invoices     Invoice[]
   portalTokens PortalToken[]
 
   @@index([tenantId, status])
@@ -204,21 +217,21 @@ model Prestation {
 }
 
 model BookingSlot {
-  id            String        @id @default(cuid())
-  tenantId      String        @map("tenant_id")
-  prestationId  String        @map("prestation_id")
-  resourceId    String        @map("resource_id")
-  startsAt      DateTime      @map("starts_at") @db.Timestamptz(6)
-  endsAt        DateTime      @map("ends_at") @db.Timestamptz(6)
-  status        BookingStatus @default(OPTION)
-  locationName  String?       @map("location_name")
-  locationAddress String?     @map("location_address")
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  prestation    Prestation    @relation(fields: [prestationId], references: [id], onDelete: Cascade)
-  resource      CalendarResource @relation(fields: [resourceId], references: [id], onDelete: Restrict)
-  optionHold    OptionHold?
+  id              String           @id @default(cuid())
+  tenantId        String           @map("tenant_id")
+  prestationId    String           @map("prestation_id")
+  resourceId      String           @map("resource_id")
+  startsAt        DateTime         @map("starts_at") @db.Timestamptz(6)
+  endsAt          DateTime         @map("ends_at") @db.Timestamptz(6)
+  status          BookingStatus    @default(OPTION)
+  locationName    String?          @map("location_name")
+  locationAddress String?          @map("location_address")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  prestation      Prestation       @relation(fields: [prestationId], references: [id], onDelete: Cascade)
+  resource        CalendarResource @relation(fields: [resourceId], references: [id], onDelete: Restrict)
+  optionHold      OptionHold?
 
   @@index([tenantId, resourceId, startsAt])
   @@index([prestationId])
@@ -285,18 +298,18 @@ model Quote {
 }
 
 model QuoteLine {
-  id             String   @id @default(cuid())
-  tenantId       String   @map("tenant_id")
-  quoteId        String   @map("quote_id")
+  id             String  @id @default(cuid())
+  tenantId       String  @map("tenant_id")
+  quoteId        String  @map("quote_id")
   label          String
   description    String?
-  quantity       Decimal  @default(1) @db.Decimal(12, 3)
-  unitPriceCents Int      @map("unit_price_cents")
-  taxRateBps     Int      @default(0) @map("tax_rate_bps")
-  totalCents     Int      @map("total_cents")
+  quantity       Decimal @default(1) @db.Decimal(12, 3)
+  unitPriceCents Int     @map("unit_price_cents")
+  taxRateBps     Int     @default(0) @map("tax_rate_bps")
+  totalCents     Int     @map("total_cents")
   position       Int
-  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  quote          Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  tenant         Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  quote          Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
 
   @@unique([quoteId, position])
   @@index([tenantId])
@@ -304,38 +317,38 @@ model QuoteLine {
 }
 
 model Contract {
-  id            String         @id @default(cuid())
-  tenantId      String         @map("tenant_id")
-  prestationId  String         @map("prestation_id")
-  quoteId       String         @unique @map("quote_id")
-  status        ContractStatus @default(DRAFT)
-  documentHash  String?        @map("document_hash")
-  storageKey    String?        @map("storage_key")
-  sentAt        DateTime?      @map("sent_at")
-  signedAt      DateTime?      @map("signed_at")
-  immutableAt   DateTime?      @map("immutable_at")
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  prestation    Prestation     @relation(fields: [prestationId], references: [id], onDelete: Restrict)
-  quote         Quote          @relation(fields: [quoteId], references: [id], onDelete: Restrict)
-  signatures    SignatureProof[]
+  id           String           @id @default(cuid())
+  tenantId     String           @map("tenant_id")
+  prestationId String           @map("prestation_id")
+  quoteId      String           @unique @map("quote_id")
+  status       ContractStatus   @default(DRAFT)
+  documentHash String?          @map("document_hash")
+  storageKey   String?          @map("storage_key")
+  sentAt       DateTime?        @map("sent_at")
+  signedAt     DateTime?        @map("signed_at")
+  immutableAt  DateTime?        @map("immutable_at")
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  tenant       Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  prestation   Prestation       @relation(fields: [prestationId], references: [id], onDelete: Restrict)
+  quote        Quote            @relation(fields: [quoteId], references: [id], onDelete: Restrict)
+  signatures   SignatureProof[]
 
   @@index([tenantId, status])
   @@map("contract")
 }
 
 model SignatureProof {
-  id          String   @id @default(cuid())
-  tenantId    String   @map("tenant_id")
-  contractId  String   @map("contract_id")
-  signerEmail String   @map("signer_email")
-  ipAddress   String?  @map("ip_address")
-  userAgent   String?  @map("user_agent")
-  documentHash String  @map("document_hash")
-  signedAt    DateTime @default(now()) @map("signed_at")
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  contract    Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  tenantId     String   @map("tenant_id")
+  contractId   String   @map("contract_id")
+  signerEmail  String   @map("signer_email")
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  documentHash String   @map("document_hash")
+  signedAt     DateTime @default(now()) @map("signed_at")
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, signedAt])
   @@map("signature_proof")
@@ -358,17 +371,17 @@ model PaymentSchedule {
 }
 
 model PaymentInstallment {
-  id         String            @id @default(cuid())
-  tenantId   String            @map("tenant_id")
-  scheduleId String            @map("schedule_id")
-  sequence   Int
+  id          String            @id @default(cuid())
+  tenantId    String            @map("tenant_id")
+  scheduleId  String            @map("schedule_id")
+  sequence    Int
   amountCents Int               @map("amount_cents")
-  dueAt      DateTime          @map("due_at") @db.Timestamptz(6)
-  status     InstallmentStatus @default(PENDING)
-  createdAt  DateTime          @default(now())
-  tenant     Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  schedule   PaymentSchedule   @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  payments   Payment[]
+  dueAt       DateTime          @map("due_at") @db.Timestamptz(6)
+  status      InstallmentStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
+  tenant      Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  schedule    PaymentSchedule   @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  payments    Payment[]
 
   @@unique([scheduleId, sequence])
   @@index([tenantId, status, dueAt])
@@ -437,17 +450,34 @@ model PortalToken {
   @@map("portal_token")
 }
 
-model OutboxEvent {
-  id         String      @id @default(cuid())
-  tenantId   String      @map("tenant_id")
+model ActivityLog {
+  id         String   @id @default(cuid())
+  tenantId   String   @map("tenant_id")
+  actorId    String?  @map("actor_id")
   type       String
-  payload    Json
-  status     OutboxStatus @default(PENDING)
-  retryCount Int         @default(0) @map("retry_count")
-  availableAt DateTime   @default(now()) @map("available_at")
-  processedAt DateTime?  @map("processed_at")
-  createdAt  DateTime    @default(now())
-  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  targetType String   @map("target_type")
+  targetId   String   @map("target_id")
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, createdAt])
+  @@index([targetType, targetId])
+  @@map("activity_log")
+}
+
+model OutboxEvent {
+  id          String       @id @default(cuid())
+  tenantId    String       @map("tenant_id")
+  type        String
+  payload     Json
+  status      OutboxStatus @default(PENDING)
+  retryCount  Int          @default(0) @map("retry_count")
+  availableAt DateTime     @default(now()) @map("available_at")
+  processedAt DateTime?    @map("processed_at")
+  createdAt   DateTime     @default(now())
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, status, availableAt])
   @@map("outbox_event")
@@ -468,6 +498,13 @@ enum TenantStatus {
 enum VatMode {
   EXEMPT
   STANDARD
+}
+
+enum LegalForm {
+  EI
+  SASU
+  EURL
+  OTHER
 }
 
 // The professional's trade. Drives templates and defaults down the line.
@@ -572,4 +609,3 @@ enum OutboxStatus {
   FAILED
   DEAD
 }
-

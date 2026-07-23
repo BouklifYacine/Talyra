@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { TenantModule } from './tenant/tenant.module';
 import { MeModule } from './me/me.module';
 import { auth } from './auth';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { auth } from './auth';
     AuthModule.forRoot({ auth }),
     TenantModule,
     MeModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
